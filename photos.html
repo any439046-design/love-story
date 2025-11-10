@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>照片时光旅程 - Photo Timeline</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="timeline-page">
+    <!-- 返回按钮 -->
+    <a href="index.html" class="back-btn">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        <span>返回首页</span>
+    </a>
+
+    <!-- 背景渐变 -->
+    <div class="gradient-overlay"></div>
+
+    <!-- 页面标题 -->
+    <header class="page-header">
+        <h1 class="page-title fade-in">照片时光旅程</h1>
+        <p class="page-subtitle fade-in-delay">每一张照片，都是一段故事</p>
+    </header>
+
+    <!-- 时间线容器 -->
+    <div class="timeline-container">
+        <div class="timeline-line"></div>
+
+        <!-- 时间线节点 1 -->
+        <div class="timeline-item" data-aos="fade-up">
+            <div class="timeline-marker"></div>
+            <div class="timeline-content">
+                <div class="timeline-date">2024年1月</div>
+                <div class="timeline-card">
+                    <div class="card-image">
+                        <!-- 示例图片 - 请替换为实际图片路径 -->
+                        <img src="assets/img/memory-1.jpg" alt="第一次见面" loading="lazy">
+                        <div class="image-overlay"></div>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">第一次见面</h3>
+                        <p class="card-description">
+                            那天阳光正好，微风不燥。在图书馆的角落，
+                            我第一次看到了你。你专注读书的样子，
+                            让我的心跳突然加速。那一刻，
+                            我知道，你就是我一直在等的人。
+                        </p>
+                        <div class="card-tags">
+                            <span class="tag">缘分</span>
+                            <span class="tag">初遇</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 时间线节点 2 -->
+        <div class="timeline-item" data-aos="fade-up">
+            <div class="timeline-marker"></div>
+            <div class="timeline-content">
+                <div class="timeline-date">2024年2月</div>
+                <div class="timeline-card">
+                    <div class="card-image">
+                        <img src="assets/img/memory-2.jpg" alt="第一次拼车" loading="lazy">
+                        <div class="image-overlay"></div>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">第一次拼车</h3>
+                        <p class="card-description">
+                            雨天的夜晚，我们第一次拼车回家。
+                            车窗外是朦胧的雨景，车内是温暖的对话。
+                            那次聊天，让我们的距离拉近了许多。
+                            你说你喜欢雨天，从那以后，我也爱上了雨天。
+                        </p>
+                        <div class="card-tags">
+                            <span class="tag">雨夜</span>
+                            <span class="tag">相识</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 时间线节点 3 -->
+        <div class="timeline-item" data-aos="fade-up">
+            <div class="timeline-marker"></div>
+            <div class="timeline-content">
+                <div class="timeline-date">2024年3月</div>
+                <div class="timeline-card">
+                    <div class="card-image">
+                        <img src="assets/img/memory-3.jpg" alt="咖啡馆的下午" loading="lazy">
+                        <div class="image-overlay"></div>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">咖啡馆的下午</h3>
+                        <p class="card-description">
+                            春日午后，我们坐在咖啡馆的窗边，
+                            阳光透过玻璃洒在你的脸上。
+                            你笑着说着生活中的小事，
+                            而我，早已沉醉在你的笑容里。
+                        </p>
+                        <div class="card-tags">
+                            <span class="tag">温暖</span>
+                            <span class="tag">美好</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 时间线节点 4 -->
+        <div class="timeline-item" data-aos="fade-up">
+            <div class="timeline-marker"></div>
+            <div class="timeline-content">
+                <div class="timeline-date">2024年5月</div>
+                <div class="timeline-card">
+                    <div class="card-image">
+                        <img src="assets/img/memory-4.jpg" alt="樱花树下" loading="lazy">
+                        <div class="image-overlay"></div>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">樱花树下的告白</h3>
+                        <p class="card-description">
+                            樱花飘落的季节，我终于鼓起勇气向你表白。
+                            你羞涩地笑着，轻轻点了点头。
+                            那一刻，整个世界都变成了粉色，
+                            就像我们身边飘落的樱花一样浪漫。
+                        </p>
+                        <div class="card-tags">
+                            <span class="tag">告白</span>
+                            <span class="tag">樱花</span>
+                            <span class="tag">浪漫</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 时间线节点 5 -->
+        <div class="timeline-item" data-aos="fade-up">
+            <div class="timeline-marker"></div>
+            <div class="timeline-content">
+                <div class="timeline-date">2024年7月</div>
+                <div class="timeline-card">
+                    <div class="card-image">
+                        <img src="assets/img/memory-5.jpg" alt="海边漫步" loading="lazy">
+                        <div class="image-overlay"></div>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">海边的夕阳</h3>
+                        <p class="card-description">
+                            我们手牵手走在海边，看着夕阳慢慢落下。
+                            海浪拍打着脚踝，微咸的海风吹过发梢。
+                            你说，希望时间能定格在这一刻。
+                            我也是。
+                        </p>
+                        <div class="card-tags">
+                            <span class="tag">海边</span>
+                            <span class="tag">夕阳</span>
+                            <span class="tag">永恒</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 时间线节点 6 - 未来 -->
+        <div class="timeline-item" data-aos="fade-up">
+            <div class="timeline-marker future"></div>
+            <div class="timeline-content">
+                <div class="timeline-date">未来...</div>
+                <div class="timeline-card future-card">
+                    <div class="card-content">
+                        <h3 class="card-title">我们的未来</h3>
+                        <p class="card-description">
+                            还有更多美好的故事等待我们一起书写。
+                            无论未来的路有多长，有多少风雨，
+                            我都想和你一起走下去。
+                            因为有你，才是最好的未来。
+                        </p>
+                        <div class="future-icon">
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/timeline.js"></script>
+</body>
+</html>
