@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我们的故事 - Our Love Story</title>
+    <title>我们的故事 - Our Story</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,6 +11,29 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <!-- 密码验证遮罩层 -->
+    <div class="password-overlay" id="passwordOverlay">
+        <div class="password-container">
+            <div class="password-icon">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+            </div>
+            <h2 class="password-title">密语</h2>
+            <p class="password-hint">请输入专属密码解锁我们的故事</p>
+            <div class="password-input-wrapper">
+                <input type="password" id="passwordInput" class="password-input" placeholder="请输入密码" maxlength="4">
+                <div class="password-error" id="passwordError">密码错误，请重试</div>
+            </div>
+            <button class="password-submit" id="passwordSubmit">解锁回忆</button>
+            <div class="password-decoration">
+                <span class="heart-float">♥</span>
+                <span class="heart-float">♥</span>
+                <span class="heart-float">♥</span>
+            </div>
+        </div>
+    </div>
+
     <!-- 背景音乐控制 -->
     <audio id="bgMusic" loop>
         <source src="assets/audio/background.mp3" type="audio/mpeg">
@@ -39,6 +62,12 @@
 
         <!-- 粒子效果背景 -->
         <div class="particles" id="particles"></div>
+
+        <!-- 星光特效 -->
+        <div class="stars-container" id="starsContainer"></div>
+
+        <!-- 爱心飘落特效 -->
+        <div class="hearts-container" id="heartsContainer"></div>
 
         <!-- 主内容 -->
         <main class="main-content">

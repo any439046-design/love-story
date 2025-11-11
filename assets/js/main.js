@@ -4,8 +4,17 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     
+    // === 密码验证 ===
+    initPasswordProtection();
+    
     // === 粒子效果 ===
     createParticles();
+    
+    // === 星光特效 ===
+    createStars();
+    
+    // === 爱心飘落特效 ===
+    createFallingHearts();
     
     // === 背景音乐控制 ===
     initMusicControl();
@@ -13,6 +22,192 @@ document.addEventListener('DOMContentLoaded', function() {
     // === 页面加载动画 ===
     initPageAnimation();
 });
+
+/**
+ * 密码验证系统
+ */
+function initPasswordProtection() {
+    const overlay = document.getElementById('passwordOverlay');
+    const input = document.getElementById('passwordInput');
+    const submitBtn = document.getElementById('passwordSubmit');
+    const errorMsg = document.getElementById('passwordError');
+    const correctPassword = '1123';
+    
+    // 检查是否已经验证过
+    const isUnlocked = sessionStorage.getItem('loveStoryUnlocked');
+    if (isUnlocked === 'true') {
+        overlay.classList.add('hidden');
+        return;
+    }
+    
+    // 提交密码
+    function checkPassword() {
+        const password = input.value.trim();
+        
+        if (password === correctPassword) {
+            // 密码正确
+            sessionStorage.setItem('loveStoryUnlocked', 'true');
+            overlay.classList.add('hidden');
+            
+            // 播放成功音效（可选）
+            input.classList.remove('error');
+            errorMsg.classList.remove('show');
+        } else {
+            // 密码错误
+            input.classList.add('error');
+            errorMsg.classList.add('show');
+            input.value = '';
+            
+            setTimeout(() => {
+                input.classList.remove('error');
+                errorMsg.classList.remove('show');
+            }, 2000);
+        }
+    }
+    
+    // 按钮点击
+    submitBtn.addEventListener('click', checkPassword);
+    
+    // 回车键提交
+    input.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            checkPassword();
+        }
+    });
+    
+    // 自动聚焦输入框
+    setTimeout(() => input.focus(), 500);
+}
+
+/**
+ * 创建星光特效
+ */
+function createStars() {
+    const starsContainer = document.getElementById('starsContainer');
+    if (!starsContainer) return;
+    
+    const starCount = window.innerWidth < 768 ? 30 : 60;
+    
+    for (let i = 0; i < starCount; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        
+        // 随机位置
+        const left = Math.random() * 100;
+        const top = Math.random() * 100;
+        
+        // 随机大小
+        const size = Math.random() * 3 + 1;
+        
+        // 随机动画时长
+        const duration = Math.random() * 3 + 2;
+        const delay = Math.random() * 5;
+        
+        star.style.cssText = `
+            left: ${left}%;
+            top: ${top}%;
+            width: ${size}px;
+            height: ${size}px;
+            --duration: ${duration}s;
+            animation-delay: ${delay}s;
+        `;
+        
+        starsContainer.appendChild(star);
+    }
+    
+    // 创建流星
+    setInterval(() => {
+        if (Math.random() > 0.7) {
+            createShootingStar();
+        }
+    }, 3000);
+}
+
+/**
+ * 创建流星
+ */
+function createShootingStar() {
+    const starsContainer = document.getElementById('starsContainer');
+    if (!starsContainer) return;
+    
+    const star = document.createElement('div');
+    star.className = 'star shooting';
+    
+    const startX = Math.random() * 50;
+    const startY = Math.random() * 50;
+    
+    star.style.cssText = `
+        left: ${startX}%;
+        top: ${startY}%;
+        width: 100px;
+        height: 2px;
+    `;
+    
+    starsContainer.appendChild(star);
+    
+    // 动画结束后移除
+    setTimeout(() => star.remove(), 3000);
+}
+
+/**
+ * 创建爱心飘落特效
+ */
+function createFallingHearts() {
+    const heartsContainer = document.getElementById('heartsContainer');
+    if (!heartsContainer) return;
+    
+    const heartCount = window.innerWidth < 768 ? 10 : 20;
+    
+    for (let i = 0; i < heartCount; i++) {
+        createHeart();
+    }
+    
+    // 持续创建新的爱心
+    setInterval(() => {
+        if (Math.random() > 0.5) {
+            createHeart();
+        }
+    }, 2000);
+}
+
+/**
+ * 创建单个爱心
+ */
+function createHeart() {
+    const heartsContainer = document.getElementById('heartsContainer');
+    if (!heartsContainer) return;
+    
+    const heart = document.createElement('div');
+    heart.className = 'falling-heart';
+    heart.innerHTML = '♥';
+    
+    // 随机位置
+    const left = Math.random() * 100;
+    
+    // 随机大小
+    const size = Math.random() * 20 + 15;
+    
+    // 随机动画时长
+    const duration = Math.random() * 10 + 8;
+    const delay = Math.random() * 5;
+    
+    heart.style.cssText = `
+        left: ${left}%;
+        --size: ${size}px;
+        --duration: ${duration}s;
+        --delay: ${delay}s;
+    `;
+    
+    heartsContainer.appendChild(heart);
+    
+    // 动画结束后移除并创建新的
+    setTimeout(() => {
+        heart.remove();
+        if (Math.random() > 0.3) {
+            createHeart();
+        }
+    }, (duration + delay) * 1000);
+}
 
 /**
  * 创建漂浮粒子效果
