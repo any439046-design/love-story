@@ -37,6 +37,8 @@ function initPasswordProtection() {
     const isUnlocked = sessionStorage.getItem('loveStoryUnlocked');
     if (isUnlocked === 'true') {
         overlay.classList.add('hidden');
+        // 自动播放音乐
+        autoPlayMusic();
         return;
     }
     
@@ -49,7 +51,9 @@ function initPasswordProtection() {
             sessionStorage.setItem('loveStoryUnlocked', 'true');
             overlay.classList.add('hidden');
             
-            // 播放成功音效（可选）
+            // 自动播放背景音乐
+            autoPlayMusic();
+            
             input.classList.remove('error');
             errorMsg.classList.remove('show');
         } else {
@@ -271,6 +275,36 @@ function createParticles() {
         `;
         document.head.appendChild(style);
     }
+}
+
+/**
+ * 自动播放音乐
+ */
+function autoPlayMusic() {
+    const bgMusic = document.getElementById('bgMusic');
+    const musicToggle = document.getElementById('musicToggle');
+    
+    if (!bgMusic) return;
+    
+    // 延迟一点播放，确保界面已完全加载
+    setTimeout(() => {
+        const playPromise = bgMusic.play();
+        
+        if (playPromise !== undefined) {
+            playPromise
+                .then(() => {
+                    // 播放成功，更新按钮状态
+                    if (musicToggle) {
+                        musicToggle.classList.remove('paused');
+                    }
+                    console.log('背景音乐自动播放成功');
+                })
+                .catch(error => {
+                    console.log('自动播放被浏览器阻止，请点击音乐按钮手动播放');
+                    // 自动播放失败不影响用户体验
+                });
+        }
+    }, 500);
 }
 
 /**
