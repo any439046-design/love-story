@@ -25,6 +25,19 @@
         <source src="assets/audio/background.mp3" type="audio/mpeg">
     </audio>
 
+    <!-- 音乐控制按钮 -->
+    <button class="music-toggle" id="musicToggle" aria-label="音乐控制">
+        <svg class="music-icon playing" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M9 18V5l12-2v13"></path>
+            <circle cx="6" cy="18" r="3"></circle>
+            <circle cx="18" cy="16" r="3"></circle>
+        </svg>
+        <svg class="music-icon paused" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <line x1="18" y1="20" x2="18" y2="4"></line>
+            <line x1="6" y1="20" x2="6" y2="4"></line>
+        </svg>
+    </button>
+
     <!-- 背景渐变 -->
     <div class="gradient-overlay"></div>
 
@@ -207,18 +220,71 @@
     <script>
         // 背景音乐控制
         const bgMusic = document.getElementById('bgMusic');
+        const musicToggle = document.getElementById('musicToggle');
+        let isPlaying = false;
         
         // 页面加载时检查音乐状态
         window.addEventListener('DOMContentLoaded', () => {
             const shouldPlay = localStorage.getItem('bgMusicPlaying') === 'true';
+            
             if (shouldPlay && bgMusic) {
-                bgMusic.currentTime = parseFloat(localStorage.getItem('bgMusicTime') || '0');
+                const savedTime = parseFloat(localStorage.getItem('bgMusicTime') || '0');
+                bgMusic.currentTime = savedTime;
+                bgMusic.volume = 0.3;
+                
                 const playPromise = bgMusic.play();
                 if (playPromise !== undefined) {
-                    playPromise.catch(error => {
+                    playPromise.then(() => {
+                        isPlaying = true;
+                        musicToggle.classList.remove('paused');
+                    }).catch(error => {
                         console.log('Auto-play prevented:', error);
+                        isPlaying = false;
+                        musicToggle.classList.add('paused');
                     });
                 }
+            } else {
+                musicToggle.classList.add('paused');
+            }
+        });
+
+        // 音乐控制按钮点击事件
+        if (musicToggle) {
+            musicToggle.addEventListener('click', function() {
+                if (isPlaying) {
+                    bgMusic.pause();
+                    musicToggle.classList.add('paused');
+                    isPlaying = false;
+                    localStorage.setItem('bgMusicPlaying', 'false');
+                } else {
+                    bgMusic.play().then(() => {
+                        musicToggle.classList.remove('paused');
+                        isPlaying = true;
+                        localStorage.setItem('bgMusicPlaying', 'true');
+                    }).catch(error => {
+                        console.log('播放失败:', error);
+                    });
+                }
+            });
+        }
+
+        // 监听音频播放状态
+        bgMusic.addEventListener('play', function() {
+            musicToggle.classList.remove('paused');
+            isPlaying = true;
+            localStorage.setItem('bgMusicPlaying', 'true');
+        });
+        
+        bgMusic.addEventListener('pause', function() {
+            musicToggle.classList.add('paused');
+            isPlaying = false;
+            localStorage.setItem('bgMusicPlaying', 'false');
+        });
+        
+        // 定期保存音乐播放位置
+        bgMusic.addEventListener('timeupdate', function() {
+            if (!bgMusic.paused) {
+                localStorage.setItem('bgMusicTime', bgMusic.currentTime.toString());
             }
         });
 

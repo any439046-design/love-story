@@ -26,19 +26,70 @@ document.addEventListener('DOMContentLoaded', function() {
  */
 function initBackgroundMusic() {
     const bgMusic = document.getElementById('bgMusic');
-    if (!bgMusic) return;
+    const musicToggle = document.getElementById('musicToggle');
+    if (!bgMusic || !musicToggle) return;
+    
+    let isPlaying = false;
     
     // 页面加载时检查音乐状态
     const shouldPlay = localStorage.getItem('bgMusicPlaying') === 'true';
     if (shouldPlay) {
-        bgMusic.currentTime = parseFloat(localStorage.getItem('bgMusicTime') || '0');
+        const savedTime = parseFloat(localStorage.getItem('bgMusicTime') || '0');
+        bgMusic.currentTime = savedTime;
+        bgMusic.volume = 0.3;
+        
         const playPromise = bgMusic.play();
         if (playPromise !== undefined) {
-            playPromise.catch(error => {
+            playPromise.then(() => {
+                isPlaying = true;
+                musicToggle.classList.remove('paused');
+            }).catch(error => {
                 console.log('Auto-play prevented:', error);
+                isPlaying = false;
+                musicToggle.classList.add('paused');
             });
         }
+    } else {
+        musicToggle.classList.add('paused');
     }
+    
+    // 音乐控制按钮点击事件
+    musicToggle.addEventListener('click', function() {
+        if (isPlaying) {
+            bgMusic.pause();
+            musicToggle.classList.add('paused');
+            isPlaying = false;
+            localStorage.setItem('bgMusicPlaying', 'false');
+        } else {
+            bgMusic.play().then(() => {
+                musicToggle.classList.remove('paused');
+                isPlaying = true;
+                localStorage.setItem('bgMusicPlaying', 'true');
+            }).catch(error => {
+                console.log('播放失败:', error);
+            });
+        }
+    });
+    
+    // 监听音频播放状态
+    bgMusic.addEventListener('play', function() {
+        musicToggle.classList.remove('paused');
+        isPlaying = true;
+        localStorage.setItem('bgMusicPlaying', 'true');
+    });
+    
+    bgMusic.addEventListener('pause', function() {
+        musicToggle.classList.add('paused');
+        isPlaying = false;
+        localStorage.setItem('bgMusicPlaying', 'false');
+    });
+    
+    // 定期保存音乐播放位置
+    bgMusic.addEventListener('timeupdate', function() {
+        if (!bgMusic.paused) {
+            localStorage.setItem('bgMusicTime', bgMusic.currentTime.toString());
+        }
+    });
     
     // 离开页面前保存音乐状态
     window.addEventListener('beforeunload', () => {
