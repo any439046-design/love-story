@@ -444,19 +444,16 @@ body {
 
 .music-icon {
     color: var(--primary-pink);
-    transition: opacity var(--transition-fast);
+    transition: all var(--transition-normal);
 }
 
-.music-icon.paused {
-    display: none;
+.music-toggle.paused .music-icon {
+    opacity: 0.5;
+    transform: scale(0.9);
 }
 
-.music-toggle.paused .music-icon.playing {
-    display: none;
-}
-
-.music-toggle.paused .music-icon.paused {
-    display: block;
+.music-toggle.paused {
+    background: rgba(255, 255, 255, 0.7);
 }
 
 /* 主内容区域 */

@@ -65,6 +65,11 @@ class MusicManager {
         }
     }
     
+    tryPlay() {
+        // 尝试播放，用于密码验证后自动播放
+        this.play();
+    }
+    
     play() {
         if (this.audio && !this.isPlaying) {
             const playPromise = this.audio.play();
@@ -92,6 +97,11 @@ class MusicManager {
         } else {
             this.play();
         }
+    }
+    
+    isEnabled() {
+        const wasPlaying = localStorage.getItem('bgMusicPlaying');
+        return wasPlaying === 'true';
     }
     
     updateAllButtons() {
@@ -361,35 +371,7 @@ function createParticles() {
     }
 }
 
-/**
- * 自动播放音乐
- */
-function autoPlayMusic() {
-    const bgMusic = document.getElementById('bgMusic');
-    const musicToggle = document.getElementById('musicToggle');
-    
-    if (!bgMusic) return;
-    
-    // 延迟一点播放，确保界面已完全加载
-    setTimeout(() => {
-        const playPromise = bgMusic.play();
-        
-        if (playPromise !== undefined) {
-            playPromise
-                .then(() => {
-                    // 播放成功，更新按钮状态
-                    if (musicToggle) {
-                        musicToggle.classList.remove('paused');
-                    }
-                    console.log('背景音乐自动播放成功');
-                })
-                .catch(error => {
-                    console.log('自动播放被浏览器阻止，请点击音乐按钮手动播放');
-                    // 自动播放失败不影响用户体验
-                });
-        }
-    }, 500);
-}
+
 
 /**
  * 初始化音乐控制
