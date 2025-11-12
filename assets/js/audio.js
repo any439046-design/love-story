@@ -4,9 +4,6 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     
-    // === 背景音乐控制 ===
-    initBackgroundMusic();
-    
     // === 滚动动画 ===
     initScrollAnimations();
     
@@ -20,74 +17,6 @@ document.addEventListener('DOMContentLoaded', function() {
     initWaveAnimation();
     
 });
-
-/**
- * 初始化背景音乐控制
- */
-function initBackgroundMusic() {
-    const bgMusic = document.getElementById('bgMusic');
-    const musicToggle = document.getElementById('musicToggle');
-    if (!bgMusic || !musicToggle) return;
-    
-    // 设置音量
-    bgMusic.volume = 0.3;
-    
-    // 页面加载时自动恢复音乐播放
-    const savedTime = parseFloat(localStorage.getItem('bgMusicTime') || '0');
-    bgMusic.currentTime = savedTime;
-    
-    // 移除暂停状态，显示播放图标
-    musicToggle.classList.remove('paused');
-    
-    console.log('🎤 Audio page - 恢复音乐播放，从', savedTime.toFixed(2), '秒开始');
-    
-    // 尝试播放
-    const playPromise = bgMusic.play();
-    if (playPromise !== undefined) {
-        playPromise.then(() => {
-            localStorage.setItem('bgMusicPlaying', 'true');
-            console.log('✅ Audio page - 音乐播放成功');
-        }).catch(error => {
-            console.warn('⚠️ Audio page - 播放失败:', error.message);
-            musicToggle.classList.add('paused');
-        });
-    }
-    
-    // 音乐控制按钮点击事件
-    musicToggle.addEventListener('click', function() {
-        if (bgMusic.paused) {
-            bgMusic.play().catch(error => console.log('播放失败:', error));
-        } else {
-            bgMusic.pause();
-        }
-    });
-    
-    // 监听音频播放状态
-    bgMusic.addEventListener('play', function() {
-        musicToggle.classList.remove('paused');
-        localStorage.setItem('bgMusicPlaying', 'true');
-    });
-    
-    bgMusic.addEventListener('pause', function() {
-        musicToggle.classList.add('paused');
-        localStorage.setItem('bgMusicPlaying', 'false');
-    });
-    
-    // 定期保存音乐播放位置
-    bgMusic.addEventListener('timeupdate', function() {
-        if (!bgMusic.paused) {
-            localStorage.setItem('bgMusicTime', bgMusic.currentTime.toString());
-        }
-    });
-    
-    // 离开页面前保存音乐状态
-    window.addEventListener('beforeunload', () => {
-        if (!bgMusic.paused) {
-            localStorage.setItem('bgMusicPlaying', 'true');
-            localStorage.setItem('bgMusicTime', bgMusic.currentTime.toString());
-        }
-    });
-}
 
 /**
  * 初始化滚动动画
@@ -118,26 +47,18 @@ function initScrollAnimations() {
  */
 function initAudioPlayers() {
     const audioPlayers = document.querySelectorAll('.audio-player');
-    const bgMusic = document.getElementById('bgMusic');
     
     audioPlayers.forEach((audio, index) => {
         // 设置音量
         audio.volume = 0.7;
         
-        // 播放时暂停其他音频和背景音乐
+        // 播放时暂停其他音频
         audio.addEventListener('play', function() {
             audioPlayers.forEach((otherAudio, otherIndex) => {
                 if (otherIndex !== index && !otherAudio.paused) {
                     otherAudio.pause();
                 }
             });
-            
-            // 暂停背景音乐
-            if (bgMusic && !bgMusic.paused) {
-                bgMusic.pause();
-                // 标记背景音乐被录音暂停
-                bgMusic.dataset.pausedByRecording = 'true';
-            }
             
             // 激活对应的可视化器
             const visualizer = this.parentElement.querySelector('.audio-visualizer');
@@ -154,22 +75,11 @@ function initAudioPlayers() {
             }
         });
         
-        // 播放结束时停止可视化并恢复背景音乐
+        // 播放结束时停止可视化
         audio.addEventListener('ended', function() {
             const visualizer = this.parentElement.querySelector('.audio-visualizer');
             if (visualizer) {
                 visualizer.classList.remove('active');
-            }
-            
-            // 恢复背景音乐（如果之前是播放状态）
-            if (bgMusic && bgMusic.dataset.pausedByRecording === 'true') {
-                const shouldResume = localStorage.getItem('bgMusicPlaying') === 'true';
-                if (shouldResume) {
-                    bgMusic.play().catch(error => {
-                        console.log('Resume background music failed:', error);
-                    });
-                }
-                delete bgMusic.dataset.pausedByRecording;
             }
         });
         
