@@ -286,6 +286,11 @@ function autoPlayMusic() {
     
     if (!bgMusic) return;
     
+    // 检查是否应该播放（从 localStorage 读取状态）
+    const shouldPlay = localStorage.getItem('bgMusicPlaying') !== 'false';
+    
+    if (!shouldPlay) return;
+    
     // 延迟一点播放，确保界面已完全加载
     setTimeout(() => {
         const playPromise = bgMusic.play();
@@ -293,15 +298,16 @@ function autoPlayMusic() {
         if (playPromise !== undefined) {
             playPromise
                 .then(() => {
-                    // 播放成功，更新按钮状态
+                    // 播放成功，更新按钮状态和 localStorage
                     if (musicToggle) {
                         musicToggle.classList.remove('paused');
                     }
+                    localStorage.setItem('bgMusicPlaying', 'true');
                     console.log('背景音乐自动播放成功');
                 })
                 .catch(error => {
                     console.log('自动播放被浏览器阻止，请点击音乐按钮手动播放');
-                    // 自动播放失败不影响用户体验
+                    localStorage.setItem('bgMusicPlaying', 'false');
                 });
         }
     }, 500);
@@ -316,13 +322,19 @@ function initMusicControl() {
     
     if (!musicToggle || !bgMusic) return;
     
-    let isPlaying = false;
+    let isPlaying = localStorage.getItem('bgMusicPlaying') === 'true';
+    
+    // 根据 localStorage 状态初始化按钮
+    if (!isPlaying) {
+        musicToggle.classList.add('paused');
+    }
     
     musicToggle.addEventListener('click', function() {
         if (isPlaying) {
             bgMusic.pause();
             musicToggle.classList.add('paused');
             isPlaying = false;
+            localStorage.setItem('bgMusicPlaying', 'false');
         } else {
             // 尝试播放音乐
             const playPromise = bgMusic.play();
@@ -332,12 +344,14 @@ function initMusicControl() {
                     .then(() => {
                         musicToggle.classList.remove('paused');
                         isPlaying = true;
+                        localStorage.setItem('bgMusicPlaying', 'true');
                     })
                     .catch(error => {
                         console.log('自动播放被阻止:', error);
                         // 即使播放失败也更新UI状态
                         musicToggle.classList.add('paused');
                         isPlaying = false;
+                        localStorage.setItem('bgMusicPlaying', 'false');
                     });
             }
         }
@@ -347,11 +361,30 @@ function initMusicControl() {
     bgMusic.addEventListener('play', function() {
         musicToggle.classList.remove('paused');
         isPlaying = true;
+        localStorage.setItem('bgMusicPlaying', 'true');
     });
     
     bgMusic.addEventListener('pause', function() {
         musicToggle.classList.add('paused');
         isPlaying = false;
+        localStorage.setItem('bgMusicPlaying', 'false');
+    });
+    
+    // 定期保存音乐播放位置
+    bgMusic.addEventListener('timeupdate', function() {
+        if (!bgMusic.paused) {
+            localStorage.setItem('bgMusicTime', bgMusic.currentTime.toString());
+        }
+    });
+    
+    // 离开页面前保存状态
+    window.addEventListener('beforeunload', () => {
+        if (!bgMusic.paused) {
+            localStorage.setItem('bgMusicPlaying', 'true');
+            localStorage.setItem('bgMusicTime', bgMusic.currentTime.toString());
+        } else {
+            localStorage.setItem('bgMusicPlaying', 'false');
+        }
     });
     
     // 设置音量

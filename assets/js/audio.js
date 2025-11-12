@@ -4,6 +4,9 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     
+    // === 背景音乐控制 ===
+    initBackgroundMusic();
+    
     // === 滚动动画 ===
     initScrollAnimations();
     
@@ -17,6 +20,36 @@ document.addEventListener('DOMContentLoaded', function() {
     initWaveAnimation();
     
 });
+
+/**
+ * 初始化背景音乐控制
+ */
+function initBackgroundMusic() {
+    const bgMusic = document.getElementById('bgMusic');
+    if (!bgMusic) return;
+    
+    // 页面加载时检查音乐状态
+    const shouldPlay = localStorage.getItem('bgMusicPlaying') === 'true';
+    if (shouldPlay) {
+        bgMusic.currentTime = parseFloat(localStorage.getItem('bgMusicTime') || '0');
+        const playPromise = bgMusic.play();
+        if (playPromise !== undefined) {
+            playPromise.catch(error => {
+                console.log('Auto-play prevented:', error);
+            });
+        }
+    }
+    
+    // 离开页面前保存音乐状态
+    window.addEventListener('beforeunload', () => {
+        if (!bgMusic.paused) {
+            localStorage.setItem('bgMusicPlaying', 'true');
+            localStorage.setItem('bgMusicTime', bgMusic.currentTime.toString());
+        } else {
+            localStorage.setItem('bgMusicPlaying', 'false');
+        }
+    });
+}
 
 /**
  * 初始化滚动动画
@@ -47,18 +80,26 @@ function initScrollAnimations() {
  */
 function initAudioPlayers() {
     const audioPlayers = document.querySelectorAll('.audio-player');
+    const bgMusic = document.getElementById('bgMusic');
     
     audioPlayers.forEach((audio, index) => {
         // 设置音量
         audio.volume = 0.7;
         
-        // 播放时暂停其他音频
+        // 播放时暂停其他音频和背景音乐
         audio.addEventListener('play', function() {
             audioPlayers.forEach((otherAudio, otherIndex) => {
                 if (otherIndex !== index && !otherAudio.paused) {
                     otherAudio.pause();
                 }
             });
+            
+            // 暂停背景音乐
+            if (bgMusic && !bgMusic.paused) {
+                bgMusic.pause();
+                // 标记背景音乐被录音暂停
+                bgMusic.dataset.pausedByRecording = 'true';
+            }
             
             // 激活对应的可视化器
             const visualizer = this.parentElement.querySelector('.audio-visualizer');
@@ -75,11 +116,22 @@ function initAudioPlayers() {
             }
         });
         
-        // 播放结束时停止可视化
+        // 播放结束时停止可视化并恢复背景音乐
         audio.addEventListener('ended', function() {
             const visualizer = this.parentElement.querySelector('.audio-visualizer');
             if (visualizer) {
                 visualizer.classList.remove('active');
+            }
+            
+            // 恢复背景音乐（如果之前是播放状态）
+            if (bgMusic && bgMusic.dataset.pausedByRecording === 'true') {
+                const shouldResume = localStorage.getItem('bgMusicPlaying') === 'true';
+                if (shouldResume) {
+                    bgMusic.play().catch(error => {
+                        console.log('Resume background music failed:', error);
+                    });
+                }
+                delete bgMusic.dataset.pausedByRecording;
             }
         });
         

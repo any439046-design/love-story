@@ -20,6 +20,11 @@
         <span>返回首页</span>
     </a>
 
+    <!-- 背景音乐 -->
+    <audio id="bgMusic" loop>
+        <source src="assets/audio/background.mp3" type="audio/mpeg">
+    </audio>
+
     <!-- 背景渐变 -->
     <div class="gradient-overlay"></div>
 
@@ -199,5 +204,33 @@
     </div>
 
     <script src="assets/js/timeline.js"></script>
+    <script>
+        // 背景音乐控制
+        const bgMusic = document.getElementById('bgMusic');
+        
+        // 页面加载时检查音乐状态
+        window.addEventListener('DOMContentLoaded', () => {
+            const shouldPlay = localStorage.getItem('bgMusicPlaying') === 'true';
+            if (shouldPlay && bgMusic) {
+                bgMusic.currentTime = parseFloat(localStorage.getItem('bgMusicTime') || '0');
+                const playPromise = bgMusic.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => {
+                        console.log('Auto-play prevented:', error);
+                    });
+                }
+            }
+        });
+
+        // 离开页面前保存音乐状态
+        window.addEventListener('beforeunload', () => {
+            if (bgMusic && !bgMusic.paused) {
+                localStorage.setItem('bgMusicPlaying', 'true');
+                localStorage.setItem('bgMusicTime', bgMusic.currentTime.toString());
+            } else {
+                localStorage.setItem('bgMusicPlaying', 'false');
+            }
+        });
+    </script>
 </body>
 </html>
