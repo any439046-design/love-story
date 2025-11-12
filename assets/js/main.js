@@ -293,11 +293,18 @@ function autoPlayMusic() {
     const musicStatus = localStorage.getItem('bgMusicPlaying');
     const shouldPlay = musicStatus === 'true' || musicStatus === null; // 默认播放
     
+    console.log('autoPlayMusic - musicStatus:', musicStatus, 'shouldPlay:', shouldPlay);
+    
     if (!shouldPlay) {
         if (musicToggle) {
             musicToggle.classList.add('paused');
         }
         return;
+    }
+    
+    // 移除暂停状态（准备播放）
+    if (musicToggle) {
+        musicToggle.classList.remove('paused');
     }
     
     // 恢复播放位置
@@ -313,10 +320,7 @@ function autoPlayMusic() {
         if (playPromise !== undefined) {
             playPromise
                 .then(() => {
-                    // 播放成功，更新按钮状态和 localStorage
-                    if (musicToggle) {
-                        musicToggle.classList.remove('paused');
-                    }
+                    // 播放成功，更新 localStorage
                     localStorage.setItem('bgMusicPlaying', 'true');
                     console.log('背景音乐自动播放成功');
                 })
@@ -327,7 +331,7 @@ function autoPlayMusic() {
                     }
                 });
         }
-    }, 500);
+    }, 300);
 }
 
 /**
@@ -339,11 +343,17 @@ function initMusicControl() {
     
     if (!musicToggle || !bgMusic) return;
     
-    let isPlaying = localStorage.getItem('bgMusicPlaying') === 'true';
+    // 设置音量
+    bgMusic.volume = 0.3;
     
-    // 根据 localStorage 状态初始化按钮
-    if (!isPlaying) {
+    // 检查音乐状态，首次访问默认为应该播放
+    const musicStatus = localStorage.getItem('bgMusicPlaying');
+    let isPlaying = musicStatus === 'true' || musicStatus === null;
+    
+    // 根据状态初始化按钮（只有明确暂停时才显示暂停）
+    if (musicStatus === 'false') {
         musicToggle.classList.add('paused');
+        isPlaying = false;
     }
     
     musicToggle.addEventListener('click', function() {
@@ -403,9 +413,6 @@ function initMusicControl() {
             localStorage.setItem('bgMusicPlaying', 'false');
         }
     });
-    
-    // 设置音量
-    bgMusic.volume = 0.3;
 }
 
 /**
