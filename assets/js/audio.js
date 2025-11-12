@@ -31,24 +31,34 @@ function initBackgroundMusic() {
     
     let isPlaying = false;
     
+    // 设置音量
+    bgMusic.volume = 0.3;
+    
     // 页面加载时检查音乐状态
-    const shouldPlay = localStorage.getItem('bgMusicPlaying') === 'true';
+    const musicStatus = localStorage.getItem('bgMusicPlaying');
+    const shouldPlay = musicStatus === 'true' || musicStatus === null; // 默认播放
+    
+    console.log('Audio page - musicStatus:', musicStatus, 'shouldPlay:', shouldPlay);
+    
     if (shouldPlay) {
         const savedTime = parseFloat(localStorage.getItem('bgMusicTime') || '0');
         bgMusic.currentTime = savedTime;
-        bgMusic.volume = 0.3;
         
-        const playPromise = bgMusic.play();
-        if (playPromise !== undefined) {
-            playPromise.then(() => {
-                isPlaying = true;
-                musicToggle.classList.remove('paused');
-            }).catch(error => {
-                console.log('Auto-play prevented:', error);
-                isPlaying = false;
-                musicToggle.classList.add('paused');
-            });
-        }
+        setTimeout(() => {
+            const playPromise = bgMusic.play();
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    isPlaying = true;
+                    musicToggle.classList.remove('paused');
+                    localStorage.setItem('bgMusicPlaying', 'true');
+                    console.log('Audio page - music playing');
+                }).catch(error => {
+                    console.log('Auto-play prevented:', error);
+                    isPlaying = false;
+                    musicToggle.classList.add('paused');
+                });
+            }
+        }, 300);
     } else {
         musicToggle.classList.add('paused');
     }

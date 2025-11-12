@@ -286,10 +286,25 @@ function autoPlayMusic() {
     
     if (!bgMusic) return;
     
-    // 检查是否应该播放（从 localStorage 读取状态）
-    const shouldPlay = localStorage.getItem('bgMusicPlaying') !== 'false';
+    // 设置音量
+    bgMusic.volume = 0.3;
     
-    if (!shouldPlay) return;
+    // 检查是否应该播放（从 localStorage 读取状态）
+    const musicStatus = localStorage.getItem('bgMusicPlaying');
+    const shouldPlay = musicStatus === 'true' || musicStatus === null; // 默认播放
+    
+    if (!shouldPlay) {
+        if (musicToggle) {
+            musicToggle.classList.add('paused');
+        }
+        return;
+    }
+    
+    // 恢复播放位置
+    const savedTime = parseFloat(localStorage.getItem('bgMusicTime') || '0');
+    if (savedTime > 0) {
+        bgMusic.currentTime = savedTime;
+    }
     
     // 延迟一点播放，确保界面已完全加载
     setTimeout(() => {
@@ -307,7 +322,9 @@ function autoPlayMusic() {
                 })
                 .catch(error => {
                     console.log('自动播放被浏览器阻止，请点击音乐按钮手动播放');
-                    localStorage.setItem('bgMusicPlaying', 'false');
+                    if (musicToggle) {
+                        musicToggle.classList.add('paused');
+                    }
                 });
         }
     }, 500);
