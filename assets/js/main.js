@@ -5,7 +5,15 @@
 document.addEventListener('DOMContentLoaded', function() {
     
     // === 全局音乐管理器 ===
-    window.GlobalMusicManager = new MusicManager();
+    // 只在没有创建过的情况下才创建新实例
+    if (!window.GlobalMusicManager) {
+        window.GlobalMusicManager = new MusicManager();
+    } else {
+        // 如果已存在，更新按钮状态
+        setTimeout(() => {
+            window.GlobalMusicManager.updateAllButtons();
+        }, 100);
+    }
     
     // === 密码验证 ===
     initPasswordProtection();
@@ -35,63 +43,144 @@ class MusicManager {
         this.isPlaying = false;
         this.volume = 0.3;
         this.musicUrl = 'assets/audio/background.mp3';
+        this.initialized = false;
+        this.pausedForAudio = false; // 标记是否因为播放其他音频而暂停
         this.init();
     }
     
     init() {
+        if (this.initialized) {
+            console.log('音乐管理器已初始化，跳过重复初始化');
+            return;
+        }
+        
+        console.log('初始化音乐管理器...');
+        
         // 创建全局音频对象
         this.audio = new Audio(this.musicUrl);
         this.audio.loop = true;
         this.audio.volume = this.volume;
         
+        // 添加音频事件监听
+        this.audio.addEventListener('loadeddata', () => {
+            console.log('音频文件加载成功');
+        });
+        
+        this.audio.addEventListener('error', (e) => {
+            console.error('音频加载失败:', e);
+        });
+        
         // 监听播放状态
         this.audio.addEventListener('play', () => {
+            console.log('音乐开始播放');
             this.isPlaying = true;
             this.updateAllButtons();
             localStorage.setItem('bgMusicPlaying', 'true');
         });
         
         this.audio.addEventListener('pause', () => {
+            console.log('音乐暂停');
             this.isPlaying = false;
             this.updateAllButtons();
-            localStorage.setItem('bgMusicPlaying', 'false');
+            // 只有不是因为其他音频而暂停时才更新localStorage
+            if (!this.pausedForAudio) {
+                localStorage.setItem('bgMusicPlaying', 'false');
+            }
         });
         
-        // 恢复之前的播放状态
-        const wasPlaying = localStorage.getItem('bgMusicPlaying');
-        if (wasPlaying === 'true') {
-            // 延迟播放，确保用户已经有过交互
-            setTimeout(() => this.play(), 1000);
+        // 防止页面卸载时暂停音乐
+        window.addEventListener('beforeunload', (e) => {
+            // 不要在这里暂停音乐，让它继续播放
+            console.log('页面即将卸载，保持音乐播放状态');
+        });
+        
+        // 页面可见性改变时保持音乐播放
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && this.shouldPlay()) {
+                console.log('页面重新可见，恢复音乐');
+                setTimeout(() => this.play(), 100);
+            }
+        });
+        
+        this.initialized = true;
+        
+        // 恢复播放状态
+        if (this.shouldPlay()) {
+            console.log('检测到应该播放音乐，开始播放');
+            setTimeout(() => this.play(), 500);
         }
+    }
+    
+    shouldPlay() {
+        const wasPlaying = localStorage.getItem('bgMusicPlaying');
+        const isUnlocked = sessionStorage.getItem('loveStoryUnlocked');
+        return wasPlaying === 'true' && isUnlocked === 'true';
     }
     
     tryPlay() {
         // 尝试播放，用于密码验证后自动播放
+        console.log('tryPlay被调用');
         this.play();
     }
     
     play() {
-        if (this.audio && !this.isPlaying) {
-            const playPromise = this.audio.play();
-            if (playPromise !== undefined) {
-                playPromise
-                    .then(() => {
-                        console.log('背景音乐开始播放');
-                    })
-                    .catch(error => {
-                        console.log('音乐播放被阻止:', error);
-                    });
-            }
+        console.log('尝试播放音乐，当前状态:', this.isPlaying);
+        
+        if (!this.audio) {
+            console.error('音频对象不存在');
+            return;
+        }
+        
+        if (this.isPlaying) {
+            console.log('音乐已在播放中');
+            return;
+        }
+        
+        // 重置暂停标志
+        this.pausedForAudio = false;
+        
+        const playPromise = this.audio.play();
+        if (playPromise !== undefined) {
+            playPromise
+                .then(() => {
+                    console.log('背景音乐播放成功');
+                })
+                .catch(error => {
+                    console.log('音乐播放失败:', error);
+                    // 设置一个标志，表示用户需要手动开始播放
+                    if (error.name === 'NotAllowedError') {
+                        console.log('自动播放被阻止，用户需要手动点击');
+                    }
+                });
         }
     }
     
     pause() {
+        console.log('暂停音乐');
         if (this.audio && this.isPlaying) {
             this.audio.pause();
         }
     }
     
+    // 为音频内容暂停背景音乐
+    pauseForAudio() {
+        console.log('因播放其他音频而暂停背景音乐');
+        if (this.audio && this.isPlaying) {
+            this.pausedForAudio = true;
+            this.audio.pause();
+        }
+    }
+    
+    // 音频内容结束后恢复背景音乐
+    resumeAfterAudio() {
+        console.log('其他音频结束，尝试恢复背景音乐');
+        if (this.pausedForAudio && this.shouldPlay()) {
+            this.play();
+        }
+    }
+    
     toggle() {
+        console.log('切换音乐状态，当前播放状态:', this.isPlaying);
         if (this.isPlaying) {
             this.pause();
         } else {
@@ -100,11 +189,11 @@ class MusicManager {
     }
     
     isEnabled() {
-        const wasPlaying = localStorage.getItem('bgMusicPlaying');
-        return wasPlaying === 'true';
+        return this.shouldPlay();
     }
     
     updateAllButtons() {
+        console.log('更新按钮状态，播放中:', this.isPlaying);
         // 更新所有页面的音乐按钮状态
         const musicButtons = document.querySelectorAll('.music-toggle');
         musicButtons.forEach(button => {
@@ -379,19 +468,31 @@ function createParticles() {
 function initMusicControl() {
     const musicToggle = document.getElementById('musicToggle');
     
-    if (!musicToggle) return;
+    if (!musicToggle) {
+        console.log('未找到音乐控制按钮');
+        return;
+    }
+    
+    console.log('找到音乐控制按钮，绑定事件');
     
     // 绑定点击事件到全局音乐管理器
-    musicToggle.addEventListener('click', function() {
-        window.GlobalMusicManager.toggle();
+    musicToggle.addEventListener('click', function(e) {
+        e.preventDefault();
+        console.log('音乐按钮被点击');
+        if (window.GlobalMusicManager) {
+            window.GlobalMusicManager.toggle();
+        } else {
+            console.error('全局音乐管理器不存在');
+        }
     });
     
     // 初始化按钮状态
     setTimeout(() => {
         if (window.GlobalMusicManager) {
             window.GlobalMusicManager.updateAllButtons();
+            console.log('音乐按钮状态已初始化');
         }
-    }, 100);
+    }, 200);
 }
 
 /**

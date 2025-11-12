@@ -358,131 +358,30 @@
     </div>
 
     <script src="assets/js/audio.js"></script>
+    <script src="assets/js/main.js"></script>
     <script>
-        // 初始化全局音乐管理器
-        class MusicManager {
-            constructor() {
-                this.audio = null;
-                this.isPlaying = false;
-                this.volume = 0.3;
-                this.musicUrl = 'assets/audio/background.mp3';
-                this.pausedForAudio = false; // 新增：标记是否因为播放其他音频而暂停
-                this.init();
-            }
-            
-            init() {
-                this.audio = new Audio(this.musicUrl);
-                this.audio.loop = true;
-                this.audio.volume = this.volume;
-                
-                this.audio.addEventListener('play', () => {
-                    this.isPlaying = true;
-                    this.updateAllButtons();
-                    localStorage.setItem('bgMusicPlaying', 'true');
-                });
-                
-                this.audio.addEventListener('pause', () => {
-                    this.isPlaying = false;
-                    this.updateAllButtons();
-                    if (!this.pausedForAudio) {
-                        localStorage.setItem('bgMusicPlaying', 'false');
-                    }
-                });
-                
-                // 恢复之前的播放状态
-                const wasPlaying = localStorage.getItem('bgMusicPlaying');
-                if (wasPlaying === 'true') {
-                    setTimeout(() => this.play(), 500);
-                }
-            }
-            
-            play() {
-                if (this.audio && !this.isPlaying) {
-                    this.pausedForAudio = false;
-                    const playPromise = this.audio.play();
-                    if (playPromise !== undefined) {
-                        playPromise.catch(error => {
-                            console.log('音乐播放被阻止:', error);
-                        });
-                    }
-                }
-            }
-            
-            pause() {
-                if (this.audio && this.isPlaying) {
-                    this.audio.pause();
-                }
-            }
-            
-            // 为音频内容暂停背景音乐
-            pauseForAudio() {
-                if (this.audio && this.isPlaying) {
-                    this.pausedForAudio = true;
-                    this.audio.pause();
-                }
-            }
-            
-            // 音频内容结束后恢复背景音乐
-            resumeAfterAudio() {
-                if (this.pausedForAudio && localStorage.getItem('bgMusicPlaying') === 'true') {
-                    this.play();
-                }
-            }
-            
-            toggle() {
-                if (this.isPlaying) {
-                    this.pause();
-                } else {
-                    this.play();
-                }
-            }
-            
-            updateAllButtons() {
-                const musicButtons = document.querySelectorAll('.music-toggle');
-                musicButtons.forEach(button => {
-                    if (this.isPlaying) {
-                        button.classList.remove('paused');
-                    } else {
-                        button.classList.add('paused');
-                    }
-                });
-            }
-        }
-
-        // 初始化
+        // 在音频页面的特殊处理
         document.addEventListener('DOMContentLoaded', function() {
-            window.GlobalMusicManager = new MusicManager();
-            
-            // 绑定音乐按钮
-            const musicToggle = document.getElementById('musicToggle');
-            if (musicToggle) {
-                musicToggle.addEventListener('click', function() {
-                    window.GlobalMusicManager.toggle();
-                });
-                
-                // 初始化按钮状态
-                setTimeout(() => {
-                    window.GlobalMusicManager.updateAllButtons();
-                }, 100);
-            }
-            
             // 监听所有音频播放器
             const audioPlayers = document.querySelectorAll('audio');
             audioPlayers.forEach(audio => {
                 audio.addEventListener('play', () => {
                     if (window.GlobalMusicManager) {
+                        console.log('音频内容开始播放，暂时暂停背景音乐');
                         window.GlobalMusicManager.pauseForAudio();
                     }
                 });
                 
                 audio.addEventListener('pause', () => {
                     if (window.GlobalMusicManager) {
+                        console.log('音频内容暂停，恢复背景音乐');
                         window.GlobalMusicManager.resumeAfterAudio();
                     }
                 });
                 
                 audio.addEventListener('ended', () => {
                     if (window.GlobalMusicManager) {
+                        console.log('音频内容播放结束，恢复背景音乐');
                         window.GlobalMusicManager.resumeAfterAudio();
                     }
                 });
